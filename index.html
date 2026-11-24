@@ -1,0 +1,14 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="theme-color" content="#1F2A1A"><title>Painel Comercial</title>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#1F2A1A;color:#F3F3EA;font:15px system-ui,sans-serif}form{width:min(320px,88vw)}b{display:block;font-size:13px;letter-spacing:.12em;margin-bottom:18px}input{width:100%;box-sizing:border-box;padding:13px;border:1px solid #5C6B2E;background:#11170E;color:#fff;font-size:16px;border-radius:4px}button{margin-top:10px;width:100%;padding:13px;border:0;background:#D5DE45;color:#1F2A1A;font-weight:700;font-size:15px;border-radius:4px}p{color:#B4442F;font-size:13px;min-height:18px}</style></head>
+<body><form id="f"><b>FINSCALE · PAINEL COMERCIAL</b><input id="k" type="password" autocomplete="current-password" placeholder="Senha"><button>Entrar</button><p id="e"></p></form>
+<script>
+let P=null;const u=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function abrir(pw,lembrar){if(!P)P=await (await fetch('dados.json?t='+Date.now(),{cache:'no-store'})).json();const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:u(P.s),iterations:P.n,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+const html=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:u(P.i)},key,u(P.c)));
+if(lembrar)try{localStorage.setItem('pc_k',pw)}catch(e){}
+document.open();document.write(html);document.close()}
+let s=null;try{s=localStorage.getItem('pc_k')}catch(e){}
+if(s)abrir(s,false).catch(()=>{try{localStorage.removeItem('pc_k')}catch(e){}});
+document.getElementById('f').onsubmit=e=>{e.preventDefault();abrir(document.getElementById('k').value,true).catch(()=>document.getElementById('e').textContent='Senha incorreta.')};
+</script></body></html>
